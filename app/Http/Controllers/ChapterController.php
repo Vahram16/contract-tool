@@ -45,9 +45,8 @@ class ChapterController extends Controller
 
 
             return view('subchapters.chapter3_1');
-
-
         }
+//        elseif ()
 
 
         $restJsonChapters = Cookie::get('restChapters');
@@ -82,9 +81,21 @@ class ChapterController extends Controller
 
     public function storeSubVariable(Request $request)
     {
+        $subChapter = $request->except('_token');
+        $chapterWithSub = array_key_first($subChapter);
+        $chapter = substr($chapterWithSub, 0, -2);
         $mainJsonChapters = Cookie::get('mainChapters');
         $mainArrChapters = json_decode($mainJsonChapters, true);
-        dd($mainArrChapters);
+        $mainArrChapters[$chapter][$chapterWithSub] = $subChapter[$chapterWithSub];
+        Cookie::queue('mainChapters', json_encode($mainArrChapters));
+
+        $restJsonChapters = Cookie::get('restChapters');
+
+        $restArrChapters = json_decode($restJsonChapters, true);
+        $chapter = array_key_first($restArrChapters);
+        unset($restArrChapters[$chapter]);
+        Cookie::queue('restChapters', json_encode($restArrChapters));
+        return redirect(route($chapter, $chapter));
 
 
     }

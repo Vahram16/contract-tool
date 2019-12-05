@@ -71,6 +71,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        return redirect('contractIndex');
+
+        return redirect(route('contractIndex'));
     }
 }

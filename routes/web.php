@@ -29,6 +29,7 @@ Route::prefix('/text')->middleware('auth')->group(function () {
     Route::get('/chapter3/subchapter', 'ChapterController@createChapter3Sub')->name('chapter3');
     Route::get('/chapter4/subchapter', 'ChapterController@createChapter4Sub')->name('chapter4');
     Route::post('/storeSubchapter', 'ChapterController@storeSubchapter')->name('storeSubchapter');
+    Route::post('/store-sub-variable', 'ChapterController@storeSubVariable')->name('storeSubVariable');
 
 
 });

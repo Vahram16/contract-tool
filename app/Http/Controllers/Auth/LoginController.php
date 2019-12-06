@@ -72,7 +72,7 @@ class LoginController extends Controller
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $remember)) {
 
-            return redirect(route('contractIndex'));
+            return redirect()->route('contractIndex');
 
         }
 

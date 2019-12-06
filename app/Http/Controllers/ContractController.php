@@ -56,7 +56,7 @@ The terms and conditions of the service shall fully apply to this contract save 
 In case of contradiction between the terms and conditions of this contract and those of the main contract, the former shall prevail.
 ');
         $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-        $objWriter->save('template' . Auth::user()->id . '.docx');
+        $objWriter->save('upload/template' . Auth::user()->id . '.docx');
         return redirect(route('createChapter'));
 
     }

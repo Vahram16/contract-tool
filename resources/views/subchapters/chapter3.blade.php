@@ -9,14 +9,14 @@
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="gridCheck1" name="chapter3.1">
                 <label class="form-check-label" for="gridCheck1">
-                    .3       3.1  Subchapter
+                    3.1  Subchapter
                 </label>
             </div>
 
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="gridCheck2" name="chapter3.2">
                 <label class="form-check-label" for="gridCheck1">
-                    .3       3.2  Subchapter
+                    3.2  Subchapter
                 </label>
             </div>
 

@@ -8,12 +8,9 @@
                 <label for="exampleFormControlSelect1">Select Contract Type</label>
 
                 <select class="form-control form-control-sm" name="chapter3_1">
-{{--                    @foreach($contractTypes as $contractType)--}}
-{{--                        <option value="{{$contractType->type}}">{{ $contractType->type }}</option>--}}
-{{--                    @endforeach--}}
-                    <option value="three"> 3 </option>
-                    <option value="five"> 5 </option>
-                    <option value="ten"> 10</option>
+                    @foreach($serviceDays as $serviceDay)
+                        <option value="{{$serviceDay->service_day}}">{{ $serviceDay->service_day }}</option>
+                    @endforeach
                 </select>
 
             </div>

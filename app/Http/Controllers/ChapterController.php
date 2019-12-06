@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Subchapter3_1;
+use App\Subchapter4_3;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
@@ -33,21 +35,53 @@ class ChapterController extends Controller
     {
 
         $subChapters = $request->except('_token');
+        $jsonChapters = Cookie::get('mainChapters');
+        $mainArrChapters = json_decode($jsonChapters, true);
         if (!empty($subChapters)) {
-            $jsonChapters = Cookie::get('mainChapters');
-            $mainArrChapters = json_decode($jsonChapters, true);
             $chapKey = substr(array_key_first($subChapters), 0, -2);
             $mainArrChapters[$chapKey] = $subChapters;
             Cookie::queue('mainChapters', json_encode($mainArrChapters));
         }
 
         if (key_exists('chapter3_1', $subChapters)) {
+            $serviceDays = Subchapter3_1::get();
+            return view('subchapters.chapter3_1')
+                ->with('serviceDays', $serviceDays);
+        } elseif (key_exists('chapter4_3', $subChapters)) {
 
 
-            return view('subchapters.chapter3_1');
+            if (key_exists('chapter4_2', $subChapters) && (key_exists('chapter3', $mainArrChapters) && (key_exists('chapter3_1', $mainArrChapters['chapter3'])))) {
+                $subChaptersOptions = Subchapter4_3::get();
+
+                return view('subchapters.chapter4_3')
+                    ->with([
+                        'subChapterOptions' => $subChaptersOptions
+                    ]);
+            } else {
+                $subChaptersOptions = Subchapter4_3::get();
+                $serviceDays = Subchapter3_1::get();
+                return view('subchapters.chapter4_3')
+                    ->with([
+                        'serviceDays' => $serviceDays,
+                        'subChapterOptions' => $subChaptersOptions
+                    ]);
+            }
+
+        } elseif (key_exists('chapter4_2', $subChapters)) {
+
+            if (key_exists('chapter3', $mainArrChapters) && (key_exists('chapter3_1', $mainArrChapters['chapter3']))) {
+
+
+                return view('subchapters.chapter4_3');
+            } else {
+
+                $serviceDays = Subchapter3_1::get();
+                return view('subchapters.chapter4_3')
+                    ->with([
+                        'serviceDays' => $serviceDays,
+                    ]);
+            }
         }
-//        elseif ()
-
 
         $restJsonChapters = Cookie::get('restChapters');
         $restArrChapters = json_decode($restJsonChapters, true);
@@ -55,7 +89,6 @@ class ChapterController extends Controller
         unset($restArrChapters[$chapter]);
         Cookie::queue('restChapters', json_encode($restArrChapters));
         return redirect(route($chapter, $chapter));
-
     }
 
     public function createChapter2Sub(Request $request)
@@ -69,6 +102,7 @@ class ChapterController extends Controller
 
     public function createChapter3Sub(Request $request)
     {
+
         return view('subchapters.chapter3');
 
     }
@@ -91,12 +125,13 @@ class ChapterController extends Controller
 
         $restJsonChapters = Cookie::get('restChapters');
 
-        $restArrChapters = json_decode($restJsonChapters, true);
-        $chapter = array_key_first($restArrChapters);
-        unset($restArrChapters[$chapter]);
-        Cookie::queue('restChapters', json_encode($restArrChapters));
-        return redirect(route($chapter, $chapter));
-
+        if (!empty($restJsonChapters)) {
+            $restArrChapters = json_decode($restJsonChapters, true);
+            $chapter = array_key_first($restArrChapters);
+            unset($restArrChapters[$chapter]);
+            Cookie::queue('restChapters', json_encode($restArrChapters));
+            return redirect(route($chapter, $chapter));
+        }
 
     }
 

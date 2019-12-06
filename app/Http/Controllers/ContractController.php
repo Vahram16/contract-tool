@@ -6,6 +6,7 @@ use App\ContractPartner;
 use App\ContractType;
 use App\KTeam;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use Illuminate\Support\Facades\Cookie;
@@ -55,12 +56,20 @@ The terms and conditions of the service shall fully apply to this contract save 
 In case of contradiction between the terms and conditions of this contract and those of the main contract, the former shall prevail.
 ');
         $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-        $objWriter->save('template.docx');
+        $objWriter->save('template' . Auth::user()->id . '.docx');
         return redirect(route('createChapter'));
 
     }
 
+    public function storeWordDocument()
+    {
 
+        $j =  Cookie::get('mainChapters');
+        $a = json_decode($j,true);
+
+
+
+    }
 
 
 }

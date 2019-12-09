@@ -1,6 +1,6 @@
 /node_modules
 /public/hot
-/public/upload
+/public/upload/*
 /public/storage
 /storage/*.key
 /vendor

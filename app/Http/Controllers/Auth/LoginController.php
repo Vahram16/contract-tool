@@ -26,7 +26,7 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
-    protected $redirectTo = "/text/index";
+//    protected $redirectTo = "/text/index";
 
     /**
      * Where to redirect users after login.
@@ -62,7 +62,7 @@ class LoginController extends Controller
 
 
         if ($validator->fails()) {
-            return redirect(route('login'))
+            return back()
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -75,7 +75,6 @@ class LoginController extends Controller
             return redirect()->route('contractIndex');
 
         }
-
         return back()->withErrors('your password is incorrect');
 
 

@@ -7,7 +7,7 @@
             <div class="form-group">
                 <label for="exampleFormControlSelect1">Please select Option A or B</label>
 
-                <select class="form-control form-control-sm" name="chapter3_1">
+                <select class="form-control form-control-sm" name="chapter4_3">
                     @foreach($subChapterOptions as $subChapterOption)
                         <option value="{{ $subChapterOption->option }}">{{ $subChapterOption->option }}</option>
                     @endforeach
@@ -22,7 +22,7 @@
 
                     </label>
 
-                    <select class="form-control form-control-sm" name="chapter3_1">
+                    <select class="form-control form-control-sm" name="chapter4_2">
                         @foreach($serviceDays as $serviceDay)
                             <option value="{{$serviceDay->service_day}}">{{ $serviceDay->service_day }}</option>
                         @endforeach

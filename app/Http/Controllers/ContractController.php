@@ -61,11 +61,21 @@ In case of contradiction between the terms and conditions of this contract and t
 
     }
 
-    public function storeWordDocument()
+    public function storeWordDocument(Request $request)
     {
+        $subChapters = $request->except('_token');
+        $mainJsonChapters = Cookie::get('mainChapters');
+        $mainArrChapters = json_decode($mainJsonChapters, true);
+        $chapterWithSub = array_key_first($subChapters);
+        $chapter = substr($chapterWithSub, 0, -2);
+        $mainArrChapters[$chapter]['chapter4_3'] = $subChapters['chapter4_3'];
+dd($mainArrChapters);
 
-        $j =  Cookie::get('mainChapters');
-        $a = json_decode($j,true);
+
+
+       dd($mainArrChapters);
+        Cookie::queue('mainChapters', json_encode($mainArrChapters));
+
 
 
 

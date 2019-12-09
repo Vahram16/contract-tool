@@ -12,7 +12,7 @@
 */
 
 Route::get('/', "Auth\LoginController@index")->name('index');
-Route::post('/', "Auth\LoginController@login")->name('login');
+Route::post('/login', "Auth\LoginController@login")->name('login');
 Route::get('/register', "Auth\RegisterController@index")->name('registerIndex');
 Route::post('/create-register', "Auth\RegisterController@create")->name('registerCreate');
 Route::get('/logout', "Auth\LoginController@logout")->name('logout');

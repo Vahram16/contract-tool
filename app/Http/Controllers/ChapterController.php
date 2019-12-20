@@ -88,6 +88,9 @@ class ChapterController extends Controller
         $chapter = array_key_first($restArrChapters);
         unset($restArrChapters[$chapter]);
         Cookie::queue('restChapters', json_encode($restArrChapters));
+        if (empty($chapter)) {
+            return view('subchapters.chapter4_3');
+        }
         return redirect(route($chapter, $chapter));
     }
 

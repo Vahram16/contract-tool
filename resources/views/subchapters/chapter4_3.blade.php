@@ -33,7 +33,7 @@
         </div>
         @endif
         {{ csrf_field() }}
-        <button type="submit" class="btn btn-primary">Next</button>
+        <button type="submit" class="btn btn-primary">Generate Document</button>
         </div>
     </form>
 

@@ -11,31 +11,12 @@ use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use Illuminate\Support\Facades\Cookie;
-use PhpOffice\PhpWord\TemplateProcessor;
-use Illuminate\Support\Facades\Storage;
 
 class ContractController extends Controller
 {
 
     public function createContract()
     {
-// Add Titles
-//        $section->addPageBreak();
-//        $section->addTitle('I am Title 1', 1);
-//        $section->addText('Some text...');
-//        $section->addTextBreak(2);
-//        $section->addTitle('I am a Subtitle of Title 1', 2);
-//        $section->addTextBreak(2);
-//        $section->addText('Some more text...');
-//        $section->addTextBreak(2);
-//        $section->addTitle('Another Title (Title 2)', 1);
-//        $section->addText('Some text...');
-//        $section->addPageBreak();
-//        $section->addTitle('I am Title 3', 1);
-//        $section->addText('And more text...');
-//        $section->addTextBreak(2);
-//        $section->addTitle('I am a Subtitle of Title 3', 2);
-//        $section->addText('Again and again, more text...');
 
 
         $contractTypes = ContractType::select('type')
@@ -49,64 +30,64 @@ class ContractController extends Controller
             'contractTypes' => $contractTypes,
             'KTeams' => $KTeams,
             'contractPartners' => $contractPartners,
-
         ]);
-
     }
 
     public function storeMainContract(Request $request)
     {
-
         $docDetails = [
             'kteam' => $request->kteam,
             'partner' => $request->partner
         ];
         Cookie::queue('doc_details', json_encode($docDetails));
 
-
-//        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-//        $objWriter->save('upload/template' . Auth::user()->id . '.docx');
         return redirect(route('createChapter'));
-
     }
+
 
     public function storeWordDocument(Request $request)
     {
-        $phpWord = new PHPWord();
-        $phpWord->addTitleStyle(1, array('name' => 'HelveticaNeueLT Std Med', 'size' => 16, 'color' => '990000')); //h1
-
 
         $subChapters = $request->except('_token');
         $mainJsonChapters = Cookie::get('mainChapters');
         $mainArrChapters = json_decode($mainJsonChapters, true);
+        $docDetailsJson = $mainJsonChapters = Cookie::get('doc_details');
+        $docDetailsArr = json_decode($docDetailsJson, true);
         $chapterWithSub = array_key_first($subChapters);
         $chapter = substr($chapterWithSub, 0, -2);
-        $mainArrChapters[$chapter]['chapter4_3'] = $subChapters['chapter4_3'];
-        Cookie::queue('mainChapters', json_encode($mainArrChapters));
+//       if (empty($chapter)){
+//           dd(1111111);
+//           return back();
+//       }
+        if (!empty($mainArrChapters[$chapter]['chapter4_3'])) {
+            $mainArrChapters[$chapter]['chapter4_3'] = $subChapters['chapter4_3'];
+        };
+        if (!empty($mainArrChapters[$chapter]['chapter4_2'])) {
+            $mainArrChapters[$chapter]['chapter4_2'] = $subChapters['chapter4_2'];
+        };
+        $phpWord = new PHPWord();
+        $phpWord->addTitleStyle(1, array('name' => 'HelveticaNeueLT Std Med', 'size' => 16, 'color' => '990000')); //h1
+        $fontStyle = $phpWord->addFontStyle('rStyle', array('bold' => true, 'italic' => true, 'size' => 12));
         $sectionStyle = array(
 
-            'marginTop' => 600,
             'colsNum' => 1,
         );
         $section = $phpWord->createSection($sectionStyle);
-        $this->logo($section);
+        $this->logo($section, $docDetailsArr);
         $phpWord->getSettings()->setUpdateFields(true);
-        $this->createDocInhalt($section, $phpWord);
-
+        $this->createDocInhalt($section, $phpWord, $docDetailsArr, $mainArrChapters);
         $firstPage = $this->createDocFirstPage();
         $section->addPageBreak();
-        $this->logo($section);
-        $section->addTextRun('Base Maintenance Attachment');
-
-        $section->addText($firstPage);
-
-
+        $this->logo($section, $docDetailsArr);
+        $section->addTextRun();
+        $section->addTitle('Base Maintenance Attachment');
+        $section->addText($firstPage, $fontStyle);
         try {
             $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
         } catch (Exception $e) {
         }
         $objWriter->save('upload/template' . Auth::user()->id . '.docx');
-//         response()->download('upload/template' . Auth::user()->id . '.docx');
+        return response()->download('upload/template' . Auth::user()->id . '.docx')->deleteFileAfterSend(true);
 
 
     }
@@ -132,113 +113,130 @@ The terms and conditions of the service shall fully apply to this contract save 
 In case of contradiction between the terms and conditions of this contract and those of the main contract, the former shall prevail.
 ');
         return $text;
-
-
     }
 
-    public function createDocInhalt($section, $phpWord)
+    public function createDocInhalt($section, $phpWord, $docDetails, $mainArrChapters)
     {
 
-
-// Define the TOC font style
-        $fontStyle = array('spaceAfter' => 60, 'size' => 12);
-// Adddd
-
+        $fontStyle = array('spaceAfter' => 60, 'size' => 12,);
         $section->addText('Table of contents:');
         $section->addTextBreak(2);
-// Add TOC
         $section->addTOC($fontStyle);
         $section->addPageBreak();
         $section->addTitle('Definitions and abbreviations', 1);
         $this->createTable($phpWord, $section);
-
-        $mainChaptersJson = Cookie::get('mainChapters');
-        $mainChaptersArr = json_decode($mainChaptersJson, true);
-
         $docChapters = config('chapters');
         foreach ($docChapters as $key => $docChapter) {
-
             $rChapter = str_replace('_', '.', key($docChapter));
             $subChapter = ucfirst($rChapter);
             $chapter = ucfirst($key);
-
-
-            if (key_exists($key, $mainChaptersArr)) {
+            if (key_exists($key, $mainArrChapters)) {
                 $section->addPageBreak();
-                $this->logo($section);
+                $this->logo($section, $docDetails);
                 $section->addTitle($chapter, 1);
-                $section->addText('Some text...');
 
                 foreach ($docChapter as $itemKey => $item) {
-
-                    if (key_exists($itemKey, $mainChaptersArr[$key])) {
-
-                        $section->addTextBreak(2);
+                    if (key_exists($itemKey, $mainArrChapters[$key])) {
+                        $section->addTextBreak(1);
                         $section->addTitle('Sub-' . $itemKey, 2);
                         $section->addBookmark($chapter);
-//                        $section->addField();
-                        $section->addTextBreak(2);
-                        $section->addText('Sub-Sub' . $itemKey . ' 1');
-                        $section->addTextBreak(2);
-                        $section->addText('Some more text...');
+                        $section->addTextBreak(1);
 
+                        $linkIsInternal = true;
+                        if ($itemKey == 'chapter4_3') {
+                            $section->addText("This Text is Option {$mainArrChapters['chapter4']['chapter4_3']}  ");
+                        }
+                        if ($itemKey == 'chapter4_1') {
+                            $section->addText('YOLO!');
+                        }
+                        $section->addText('Sub-Sub' . $itemKey . ' _1');
+                        $section->addTextBreak(1);
+                        if ('Sub-Sub' . $itemKey . '_1' == 'Sub-Subchapter2_1_1') {
+                            $section->addText("Stuff that {$docDetails["partner"]} has to uphold. Very important. BRB.");
+                        }
+                        if ('Sub-Sub' . $itemKey . '_1' == 'Sub-Subchapter2_2_1') {
+                            $textRun = $section->addTextRun();
+                            $textRun->addText('Even more important information, see chapter');
+                            $textRun->addLink("Chapter3", '3.', null, null, $linkIsInternal);
+                            $textRun->addText('LOL. And some more details are in chapter 4.2.1');
+                            $textRun->addLink("Chapter4", '4.2.1', null, null, $linkIsInternal);
+                        }
+                        if ('Sub-Sub' . $itemKey . '_1' == 'Sub-Subchapter3_2_1') {
+                            $section->addText('Details regardings this chapter. IDK.');
+                        }
+                        if ('Sub-Sub' . $itemKey . '_1' == 'Sub-Subchapter4_1_1') {
+
+                            $section->addtext("Stuff that {$docDetails['partner']} has to uphold. Very important. {$docDetails['kteam']} has to agree.");
+                        }
+
+                        if ('Sub-Sub' . $itemKey . '_1' == 'Sub-Subchapter4_2_1') {
+                            $textRun = $section->addTextRun();
+                            $textRun->addText('Even more important information, see chapter ');
+                            $textRun->addLink("Chapter3", '3.', null, null, $linkIsInternal);
+                            $textRun->addText("The service should not take longer than {$mainArrChapters['chapter4']['chapter4_2']} days.");
+                        }
                     } else {
                         $sChapter = str_replace('_', '.', $itemKey);
-                        $section->addTextBreak(2);
+                        $section->addTextBreak(1);
                         $section->addText('Sub-' . $sChapter, 2);
-                        $section->addTextBreak(2);
+                        $section->addTextBreak(1);
                         $section->addText('n/a');
                     }
-
                 }
-
 
             } else {
 
                 $section->addPageBreak(2);
-                $this->logo($section);
+                $this->logo($section, $docDetails);
                 $section->addText('Sub-' . $key, 2);
                 $section->addTextBreak(2);
                 $section->addText('n/a');
-
             }
-
-
         }
-
-
     }
 
-    public function logo($section)
+    public function logo($section, $docDetails)
     {
-        $section->addImage('KTeamSolutions.jpg', [
+        $textRun = $section->addTextRun(['marginTop' => 14354453245]);
+        if ($docDetails['partner'] == 'Burger King') {
+            $textRun->addImage('img/BurgerKing.png', [
 
-            'width' => 150,
-            'height' => 50,
-            'top' => 1110,
+                'width' => 115,
+                'height' => 55,
+                'align' => 'left',
+                'posHorizontalRel' => 'margin',
+                'posVerticalRel' => 'line',
+
+            ]);
+        }
+
+        if ($docDetails['partner'] == 'Mc Donalds') {
+
+
+            $textRun->addImage('img/McDonalds.png', [
+                'wrapDistanceBottom' => 3333,
+                'width' => 115,
+                'height' => 55,
+                'align' => 'left',
+                'wrapDistanceLeft' => 200,
+            ]);
+        }
+        $textRun->addtext('                                                                        ');
+
+        $textRun->addImage('img/KTeamSolutions.jpg', [
+
+            'width' => 115,
+            'height' => 55,
             'align' => 'right',
-            'wrapDistanceRight' => 200
-
+            'wrapDistanceTop' => 200,
+            'posHorizontalRel' => 'margin',
+            'posVerticalRel' => 'line',
+            'posHorizontal' => \PhpOffice\PhpWord\Style\Image::POSITION_HORIZONTAL_RIGHT,
         ]);
-
-
     }
 
     public function createTable($phpWord, $section)
     {
-
-//
-//        $linkIsInternal = true;
-//
-//        $section->addLink('chapter2', 'Take me to Chapter 2', null, null, $linkIsInternal);
-//
-//        $section->addPageBreak();
-//
-//        $section->addTitle('This is page 2', 1);
-//        $section->addBookmark('MyBookmark');
-//        $section->addText('aaDadADa');
-
-
         $section->addTextBreak(1);
         $section->addText(htmlspecialchars('Fancy table'));
         $styleTable = array('borderSize' => 16, 'borderColor' => '006699', 'cellMargin' => 110);
@@ -248,7 +246,6 @@ In case of contradiction between the terms and conditions of this contract and t
         $fontStyle = array('bold' => true, 'align' => 'center');
         $phpWord->addTableStyle('Fancy Table', $styleTable, $styleFirstRow);
         $table = $section->addTable('Fancy Table');
-
         $table->addRow();
         $table->addCell(600000)->addText(htmlspecialchars("BRB"));
         $table->addCell(600000)->addText(htmlspecialchars("Be right back"));
@@ -260,11 +257,8 @@ In case of contradiction between the terms and conditions of this contract and t
         $table->addCell(600000)->addText(htmlspecialchars("I don’t know"));
         $table->addRow();
         $table->addCell(600000)->addText(htmlspecialchars("YOLO"));
-
         $linkIsInternal = true;
-        $section->addLink("Chapter4", 'chapter2 take', null, null, $linkIsInternal);
-        $table->addCell(600000)->addText(htmlspecialchars("YOLO"));
-        $table->addCell(600000)->addText(htmlspecialchars("xxxxxxxx"));
+        $table->addCell(600000)->addLink("Chapter4", "You only live once. See Chapter 4.1", null, null, $linkIsInternal);
 
 
     }

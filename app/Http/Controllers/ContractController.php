@@ -55,15 +55,14 @@ class ContractController extends Controller
         $docDetailsArr = json_decode($docDetailsJson, true);
         $chapterWithSub = array_key_first($subChapters);
         $chapter = substr($chapterWithSub, 0, -2);
-//       if (empty($chapter)){
-//           dd(1111111);
-//           return back();
-//       }
+
         if (!empty($mainArrChapters[$chapter]['chapter4_3'])) {
             $mainArrChapters[$chapter]['chapter4_3'] = $subChapters['chapter4_3'];
         };
-        if (!empty($mainArrChapters[$chapter]['chapter4_2'])) {
+        if (empty($mainArrChapters[$chapter]['chapter3_1']) && (!empty($subChapters['chapter4_2']))) {
+
             $mainArrChapters[$chapter]['chapter4_2'] = $subChapters['chapter4_2'];
+
         };
         $phpWord = new PHPWord();
         $phpWord->addTitleStyle(1, array('name' => 'HelveticaNeueLT Std Med', 'size' => 16, 'color' => '990000')); //h1
@@ -76,6 +75,7 @@ class ContractController extends Controller
         $this->logo($section, $docDetailsArr);
         $phpWord->getSettings()->setUpdateFields(true);
         $this->createDocInhalt($section, $phpWord, $docDetailsArr, $mainArrChapters);
+        $phpWord->getSettings()->setUpdateFields(true);
         $firstPage = $this->createDocFirstPage();
         $section->addPageBreak();
         $this->logo($section, $docDetailsArr);
@@ -143,13 +143,40 @@ In case of contradiction between the terms and conditions of this contract and t
                         $section->addTextBreak(1);
 
                         $linkIsInternal = true;
+
+
+                        if ($itemKey == 'chapter4_1' || $itemKey == 'chapter3_1') {
+
+                            $section->addText('Sub-Sub' . $itemKey, ['bold' => true]);
+
+                        } else {
+
+                            $section->addText('Sub-Sub' . $itemKey . ' _1', ['bold' => true]);
+
+                        };
+
+                        if ($itemKey == 'chapter3_1') {
+
+                            if (key_exists('chapter4', $mainArrChapters) && (key_exists('chapter4_2', $mainArrChapters['chapter4']))) {
+                                unset($mainArrChapters['chapter4']['chapter4_2']);
+
+                            }
+
+                            $nextDay = $mainArrChapters['chapter3']['chapter3_1'] + 1;
+                            $textRun = $section->addTextRun();
+                            $textRun->addText("The service should not take longer than {$mainArrChapters['chapter3']['chapter3_1']} days. If it takes. $nextDay , the {$docDetails['partner']} has to tell us why. ");
+
+                        }
+
                         if ($itemKey == 'chapter4_3') {
                             $section->addText("This Text is Option {$mainArrChapters['chapter4']['chapter4_3']}  ");
                         }
+
+
                         if ($itemKey == 'chapter4_1') {
                             $section->addText('YOLO!');
                         }
-                        $section->addText('Sub-Sub' . $itemKey . ' _1');
+
                         $section->addTextBreak(1);
                         if ('Sub-Sub' . $itemKey . '_1' == 'Sub-Subchapter2_1_1') {
                             $section->addText("Stuff that {$docDetails["partner"]} has to uphold. Very important. BRB.");
@@ -164,6 +191,7 @@ In case of contradiction between the terms and conditions of this contract and t
                         if ('Sub-Sub' . $itemKey . '_1' == 'Sub-Subchapter3_2_1') {
                             $section->addText('Details regardings this chapter. IDK.');
                         }
+
                         if ('Sub-Sub' . $itemKey . '_1' == 'Sub-Subchapter4_1_1') {
 
                             $section->addtext("Stuff that {$docDetails['partner']} has to uphold. Very important. {$docDetails['kteam']} has to agree.");
@@ -202,7 +230,7 @@ In case of contradiction between the terms and conditions of this contract and t
             $textRun->addImage('img/BurgerKing.png', [
 
                 'width' => 115,
-                'height' => 55,
+                'height' => 67,
                 'align' => 'left',
                 'posHorizontalRel' => 'margin',
                 'posVerticalRel' => 'line',
@@ -216,7 +244,7 @@ In case of contradiction between the terms and conditions of this contract and t
             $textRun->addImage('img/McDonalds.png', [
                 'wrapDistanceBottom' => 3333,
                 'width' => 115,
-                'height' => 55,
+                'height' => 67,
                 'align' => 'left',
                 'wrapDistanceLeft' => 200,
             ]);
@@ -226,7 +254,7 @@ In case of contradiction between the terms and conditions of this contract and t
         $textRun->addImage('img/KTeamSolutions.jpg', [
 
             'width' => 115,
-            'height' => 55,
+            'height' => 67,
             'align' => 'right',
             'wrapDistanceTop' => 200,
             'posHorizontalRel' => 'margin',
@@ -240,7 +268,7 @@ In case of contradiction between the terms and conditions of this contract and t
         $section->addTextBreak(1);
         $section->addText(htmlspecialchars('Fancy table'));
         $styleTable = array('borderSize' => 16, 'borderColor' => '006699', 'cellMargin' => 110);
-        $styleFirstRow = array('borderBottomSize' => 18, 'borderBottomColor' => '0000FF', 'bgColor' => '66BBFF');
+        $styleFirstRow = array('borderBottomSize' => 18, 'borderBottomColor' => '0000FF');
         $styleCell = array('valign' => 'center');
         $styleCellBTLR = array('valign' => 'center', 'textDirection' => \PhpOffice\PhpWord\Style\Cell::TEXT_DIR_BTLR);
         $fontStyle = array('bold' => true, 'align' => 'center');

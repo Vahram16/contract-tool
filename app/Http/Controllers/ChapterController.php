@@ -49,15 +49,15 @@ class ChapterController extends Controller
                 ->with('serviceDays', $serviceDays);
         } elseif (key_exists('chapter4_3', $subChapters)) {
 
-
-            if (key_exists('chapter4_2', $subChapters) && (key_exists('chapter3', $mainArrChapters) && (key_exists('chapter3_1', $mainArrChapters['chapter3'])))) {
+            if ((key_exists('chapter3', $mainArrChapters) && (key_exists('chapter3_1', $mainArrChapters['chapter3'])))) {
+                unset($mainArrChapters['chapter4']['chapter4_2']);
                 $subChaptersOptions = Subchapter4_3::get();
-
                 return view('subchapters.chapter4_3')
                     ->with([
                         'subChapterOptions' => $subChaptersOptions
                     ]);
             } else {
+
                 $subChaptersOptions = Subchapter4_3::get();
                 $serviceDays = Subchapter3_1::get();
                 return view('subchapters.chapter4_3')
@@ -70,8 +70,7 @@ class ChapterController extends Controller
         } elseif (key_exists('chapter4_2', $subChapters)) {
 
             if (key_exists('chapter3', $mainArrChapters) && (key_exists('chapter3_1', $mainArrChapters['chapter3']))) {
-
-
+                unset($mainArrChapters['chapter4']['chapter4_2']);
                 return view('subchapters.chapter4_3');
             } else {
 
@@ -125,8 +124,12 @@ class ChapterController extends Controller
         $mainArrChapters = json_decode($mainJsonChapters, true);
         $mainArrChapters[$chapter][$chapterWithSub] = $subChapter[$chapterWithSub];
         Cookie::queue('mainChapters', json_encode($mainArrChapters));
-
         $restJsonChapters = Cookie::get('restChapters');
+        $restArrChapters = json_decode($restJsonChapters, true);
+
+        if (empty($restArrChapters)) {
+            return view('subchapters.chapter4_3');
+        };
 
         if (!empty($restJsonChapters)) {
             $restArrChapters = json_decode($restJsonChapters, true);
@@ -135,6 +138,7 @@ class ChapterController extends Controller
             Cookie::queue('restChapters', json_encode($restArrChapters));
             return redirect(route($chapter, $chapter));
         }
+
 
     }
 

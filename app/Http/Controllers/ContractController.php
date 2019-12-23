@@ -66,7 +66,7 @@ class ContractController extends Controller
         };
         $phpWord = new PHPWord();
         $phpWord->addTitleStyle(1, array('name' => 'HelveticaNeueLT Std Med', 'size' => 16, 'color' => '990000')); //h1
-        $fontStyle = $phpWord->addFontStyle('rStyle', array('bold' => true, 'italic' => true, 'size' => 12));
+        $fontStyle = $phpWord->addFontStyle('rStyle', array('bold' => false, 'italic' => true, 'size' => 12));
         $sectionStyle = array(
 
             'colsNum' => 1,

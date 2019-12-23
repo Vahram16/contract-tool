@@ -42,6 +42,10 @@ class ChapterController extends Controller
             $mainArrChapters[$chapKey] = $subChapters;
             Cookie::queue('mainChapters', json_encode($mainArrChapters));
         }
+        else{
+            return back();
+        }
+
 
         if (key_exists('chapter3_1', $subChapters)) {
             $serviceDays = Subchapter3_1::get();

@@ -35,5 +35,3 @@ Route::prefix('/text')->middleware('auth')->group(function () {
 
 });
 
-Route::get('/text', 'TextController@index');
-Route::get('/test3', 'TextController@test3');

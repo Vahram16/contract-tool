@@ -67,6 +67,15 @@ class RegisterController extends Controller
         }
 
 
+        $existingUser = User::where('email',$request->email)
+            ->first();
+        if (!empty($existingUser)){
+
+            return back()
+                ->withErrors('This email already exists');
+        }
+
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,

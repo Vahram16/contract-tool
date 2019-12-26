@@ -86,6 +86,9 @@ class ContractController extends Controller
             $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
         } catch (Exception $e) {
         }
+        Cookie::queue(Cookie::forget('mainChapters'));
+        Cookie::queue(Cookie::forget('restChapters'));
+        Cookie::queue(Cookie::forget('doc_details'));
         $objWriter->save('upload/template' . Auth::user()->id . '.docx');
         return response()->download('upload/template' . Auth::user()->id . '.docx')->deleteFileAfterSend(true);
 
